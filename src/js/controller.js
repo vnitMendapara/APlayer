@@ -64,21 +64,43 @@ class Controller {
         });
 
         const thumbMove = (e) => {
-            let percentage = 1 - ((e.clientY || e.changedTouches[0].clientY) - this.player.template.volumeBar.getBoundingClientRect().top) / this.player.template.volumeBar.clientHeight;
+            let percentage = ((e.clientX || e.changedTouches[0].clientX) - this.player.template.barWrap.getBoundingClientRect().left) / this.player.template.barWrap.clientWidth;
             percentage = Math.max(percentage, 0);
             percentage = Math.min(percentage, 1);
-            this.player.volume(percentage);
+            this.player.volume(percentage); // added form volumn
+            // this.player.bar.set('played', percentage, 'width');
+            // this.player.lrc && this.player.lrc.update(percentage * this.player.duration);
+            // this.player.template.ptime.innerHTML = utils.secondToTime(percentage * this.player.duration);
         };
 
         const thumbUp = (e) => {
             this.player.template.volumeBarWrap.classList.remove('aplayer-volume-bar-wrap-active');
             document.removeEventListener(utils.nameMap.dragEnd, thumbUp);
             document.removeEventListener(utils.nameMap.dragMove, thumbMove);
-            let percentage = 1 - ((e.clientY || e.changedTouches[0].clientY) - this.player.template.volumeBar.getBoundingClientRect().top) / this.player.template.volumeBar.clientHeight;
+            let percentage = ((e.clientX || e.changedTouches[0].clientX) - this.player.template.barWrap.getBoundingClientRect().left) / this.player.template.barWrap.clientWidth;
             percentage = Math.max(percentage, 0);
             percentage = Math.min(percentage, 1);
             this.player.volume(percentage);
+            // this.player.bar.set('played', percentage, 'width');
+            // this.player.seek(percentage * this.player.duration);
+            // this.player.disableTimeupdate = false;
         };
+
+        // const thumbMove = (e) => {
+        //     let percentage = 1 - ((e.clientY || e.changedTouches[0].clientY) - this.player.template.volumeBar.getBoundingClientRect().top) / this.player.template.volumeBar.clientHeight;
+        //     percentage = Math.max(percentage, 0);
+        //     percentage = Math.min(percentage, 1);
+        // };
+
+        // const thumbUp = (e) => {
+        //     this.player.template.volumeBarWrap.classList.remove('aplayer-volume-bar-wrap-active');
+        //     document.removeEventListener(utils.nameMap.dragEnd, thumbUp);
+        //     document.removeEventListener(utils.nameMap.dragMove, thumbMove);
+        //     let percentage = 1 - ((e.clientY || e.changedTouches[0].clientY) - this.player.template.volumeBar.getBoundingClientRect().top) / this.player.template.volumeBar.clientHeight;
+        //     percentage = Math.max(percentage, 0);
+        //     percentage = Math.min(percentage, 1);
+        //     this.player.volume(percentage);
+        // };
 
         this.player.template.volumeBarWrap.addEventListener(utils.nameMap.dragStart, () => {
             this.player.template.volumeBarWrap.classList.add('aplayer-volume-bar-wrap-active');
