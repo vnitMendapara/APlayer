@@ -7,13 +7,13 @@ class List {
         this.player = player;
         this.index = 0;
         this.audios = this.player.options.audio;
-        this.showing = true;
+        this.showing = this.player.options.listFolded;
         this.player.template.list.style.height = `${Math.min(this.player.template.list.scrollHeight, this.player.options.listMaxHeight)}px`;
-
         this.bindEvents();
     }
 
     bindEvents() {
+        this.toggle()
         this.player.template.list.addEventListener('click', (e) => {
             let target;
             if (e.target.tagName.toUpperCase() === 'LI') {
@@ -146,18 +146,58 @@ class List {
             this.index = index;
 
             const audio = this.audios[this.index];
+            let text = ""
+            if (audio.shareurl.includes('program')) {
+                text = "Check This awsome Program on Radioweb "
+            } else if (audio.shareurl.includes('playlist')) {
+                text = "Check This awsome Playlist on Radioweb "
+            } else if (audio.shareurl.includes('podcast')) {
+                text = "Check This awsome podcast on Radioweb "
+            } else if (audio.shareurl.includes('playlist')) {
+                text = "Check This awsome Playlist on Radioweb "
+            }else{
+                text = ""
+            }
 
+            if (!utils.isMobileDevice) {
+                if (audio.favDetail.flag){
+                    this.player.template.aplayerFav.innerHTML = "Remove from Fav"
+                } else {
+                    this.player.template.aplayerFav.innerHTML = "Add to Fav"
+                }
+            }
+            // this.player.template.shareFacebook.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(audio.shareurl + '&t=' + text)
+            // this.player.template.shareTwitter.href = encodeURI('https://twitter.com/intent/tweet?url=' + audio.shareurl + '&text=' + text)
+            // if(utils.isMobile){
+            //     this.player.template.shareWhatsapp.href = "whatsapp://send?text=" + text + " " + audio.shareurl
+            // }else{
+            //     this.player.template.shareWhatsapp.href = 'https://api.whatsapp.com/send?text=' + text + audio.shareurl 
+            // }
+            this.player.template.shareEmail.href = 'mailto:?subject=' + text + '&body=' + text  + audio.shareurl 
+           
             // set html
             this.player.template.pic.style.backgroundImage = audio.cover ? `url('${audio.cover}')` : '';
             this.player.theme(this.audios[this.index].theme || this.player.options.theme, this.index, false);
             this.player.template.title.innerHTML = audio.name;
-            this.player.template.author.innerHTML = audio.artist ? ' - ' + audio.artist : '';
+            // this.player.template.author.innerHTML = audio.artist ? ' - ' + audio.artist : '';
+
+            if(utils.isMobileDevice){
+                this.player.template.titleMobile.innerHTML = audio.name;
+                this.player.template.authorMobile.innerHTML = audio.artist ? ' - ' + audio.artist : '';
+            }
 
             const light = this.player.container.getElementsByClassName('aplayer-list-light')[0];
             if (light) {
                 light.classList.remove('aplayer-list-light');
             }
             this.player.container.querySelectorAll('.aplayer-list li')[this.index].classList.add('aplayer-list-light');
+            if(utils.isMobileDevice){
+                const light = this.player.container.getElementsByClassName('aplayer-list-light-mobile')[0];
+                if (light) {
+                    light.classList.remove('aplayer-list-light-mobile');
+                }
+                this.player.container.querySelectorAll('.aplayer-list li')[this.index].classList.add('aplayer-list-light-mobile');
+            }
 
             smoothScroll(this.index * 33, 500, null, this.player.template.list);
 
@@ -175,20 +215,20 @@ class List {
     }
 
     clear() {
-        this.player.events.trigger('listclear');
-        this.index = 0;
-        this.player.container.classList.remove('aplayer-withlist');
-        this.player.pause();
-        this.audios = [];
-        this.player.lrc && this.player.lrc.clear();
-        this.player.audio.src = '';
-        this.player.template.list.innerHTML = '';
-        this.player.template.pic.style.backgroundImage = '';
-        this.player.theme(this.player.options.theme, this.index, false);
-        this.player.template.title.innerHTML = 'No audio';
-        this.player.template.author.innerHTML = '';
-        this.player.bar.set('loaded', 0, 'width');
-        this.player.template.dtime.innerHTML = utils.secondToTime(0);
+        // this.player.events.trigger('listclear');
+        // this.index = 0;
+        // this.player.container.classList.remove('aplayer-withlist');
+        // this.player.pause();
+        // this.audios = [];
+        // this.player.lrc && this.player.lrc.clear();
+        // this.player.audio.src = '';
+        // this.player.template.list.innerHTML = '';
+        // this.player.template.pic.style.backgroundImage = '';
+        // this.player.theme(this.player.options.theme, this.index, false);
+        // this.player.template.title.innerHTML = 'No audio';
+        // this.player.template.author.innerHTML = '';
+        // this.player.bar.set('loaded', 0, 'width');
+        // this.player.template.dtime.innerHTML = utils.secondToTime(0);
     }
 }
 

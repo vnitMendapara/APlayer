@@ -31,9 +31,6 @@ class APlayer {
         this.randomOrder = utils.randomOrder(this.options.audio.length);
 
         this.container.classList.add('aplayer');
-        if (this.options.lrcType && !this.options.fixed) {
-            this.container.classList.add('aplayer-withlrc');
-        }
         if (this.options.audio.length > 1) {
             this.container.classList.add('aplayer-withlist');
         }
@@ -45,41 +42,16 @@ class APlayer {
             this.container.classList.add('aplayer-arrow');
         }
 
-        // save lrc
-        if (this.options.lrcType === 2 || this.options.lrcType === true) {
-            const lrcEle = this.container.getElementsByClassName('aplayer-lrc-content');
-            for (let i = 0; i < lrcEle.length; i++) {
-                if (this.options.audio[i]) {
-                    this.options.audio[i].lrc = lrcEle[i].innerHTML;
-                }
-            }
-        }
-
         this.template = new Template({
             container: this.container,
             options: this.options,
             randomOrder: this.randomOrder,
         });
 
-        if (this.options.fixed) {
-            this.container.classList.add('aplayer-fixed');
-            this.template.body.style.width = this.template.body.offsetWidth - 18 + 'px';
-        }
-        if (this.options.mini) {
-            this.setMode('mini');
-            this.template.info.style.display = 'block';
-        }
         if (this.template.info.offsetWidth < 200) {
             this.template.time.classList.add('aplayer-time-narrow');
         }
 
-        if (this.options.lrcType) {
-            this.lrc = new Lrc({
-                container: this.template.lrc,
-                async: this.options.lrcType === 3,
-                player: this,
-            });
-        }
         this.events = new Events();
         this.storage = new Storage(this);
         this.bar = new Bar(this.template);
@@ -132,6 +104,9 @@ class APlayer {
         this.on('timeupdate', () => {
             if (!this.disableTimeupdate) {
                 this.bar.set('played', this.audio.currentTime / this.duration, 'width');
+                if(utils.isMobileDevice){
+                    this.bar.set('playedMobile', this.audio.currentTime / this.duration, 'width');
+                }
                 this.lrc && this.lrc.update();
                 const currentTime = utils.secondToTime(this.audio.currentTime);
                 if (this.template.ptime.innerHTML !== currentTime) {
@@ -148,14 +123,29 @@ class APlayer {
             }
         });
 
+        // Can seek now
+        this.on('loadedmetadata', () => {
+            this.seek(0,'played');
+            this.seek(0,'playedMobile');
+            if (!this.paused) {
+                this.audio.play();
+            }
+        });
+
         // show audio loaded bar: to inform interested parties of progress downloading the media
         this.on('canplay', () => {
             const percentage = this.audio.buffered.length ? this.audio.buffered.end(this.audio.buffered.length - 1) / this.duration : 0;
             this.bar.set('loaded', percentage, 'width');
+            if (utils.isMobileDevice) {
+                this.bar.set('loadedMobile', percentage, 'width');
+            }
         });
         this.on('progress', () => {
             const percentage = this.audio.buffered.length ? this.audio.buffered.end(this.audio.buffered.length - 1) / this.duration : 0;
             this.bar.set('loaded', percentage, 'width');
+            if (utils.isMobileDevice) {
+                this.bar.set('loadedMobile', this.audio.currentTime / this.duration, 'width');
+            }
         });
 
         // audio download error: an error occurs
@@ -241,11 +231,6 @@ class APlayer {
                 this.audio.src = audio.url;
             }
         }
-        this.seek(0);
-
-        if (!this.paused) {
-            this.audio.play();
-        }
     }
 
     theme(color = this.list.audios[this.list.index].theme || this.options.theme, index = this.list.index, isReset = true) {
@@ -257,15 +242,22 @@ class APlayer {
             this.template.pic.style.backgroundColor = color;
             this.template.played.style.background = color;
             this.template.thumb.style.background = color;
-            this.template.volume.style.background = color;
+            if(!utils.isMobileDevice){
+                this.template.volume.style.background = color;
+            }else{
+                this.template.thumbMobile.style.background = color;
+            }
         }
     }
 
-    seek(time) {
+    seek(time,type) {
+        console.log(type);
+        console.log("here", time,this.duration);
         time = Math.max(time, 0);
         time = Math.min(time, this.duration);
+        console.log(time / this.duration);
         this.audio.currentTime = time;
-        this.bar.set('played', time / this.duration, 'width');
+        this.bar.set(type, time / this.duration, 'width');
         this.template.ptime.innerHTML = utils.secondToTime(time);
     }
 
@@ -283,6 +275,9 @@ class APlayer {
                 this.template.button.innerHTML = Icons.pause;
             }, 100);
             this.template.skipPlayButton.innerHTML = Icons.pause;
+            if(utils.isMobileDevice){    
+                this.template.skipPlayButtonMobile.innerHTML = Icons.pause;
+            }
         }
 
         this.timer.enable('loading');
@@ -321,6 +316,9 @@ class APlayer {
                 this.template.button.innerHTML = Icons.play;
             }, 100);
             this.template.skipPlayButton.innerHTML = Icons.play;
+            if (utils.isMobileDevice) {
+                this.template.skipPlayButtonMobile.innerHTML = Icons.play;
+            }
         }
 
         this.container.classList.remove('aplayer-loading');
@@ -350,7 +348,9 @@ class APlayer {
         if (!isNaN(percentage)) {
             percentage = Math.max(percentage, 0);
             percentage = Math.min(percentage, 1);
-            this.bar.set('volume', percentage, 'height');
+            if(!utils.isMobileDevice){
+                this.bar.set('volume', percentage, 'width');
+            }
             if (!nostorage) {
                 this.storage.set('volume', percentage);
             }
@@ -359,8 +359,9 @@ class APlayer {
             if (this.audio.muted) {
                 this.audio.muted = false;
             }
-
-            this.switchVolumeIcon();
+            if (!utils.isMobileDevice) {
+                this.switchVolumeIcon();
+            }
         }
 
         return this.audio.muted ? 0 : this.audio.volume;

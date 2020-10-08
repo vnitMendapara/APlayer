@@ -12,7 +12,12 @@ import loopNone from '../assets/loop-none.svg';
 import loading from '../assets/loading.svg';
 import right from '../assets/right.svg';
 import skip from '../assets/skip.svg';
+import back from '../assets/back.svg';
 import lrc from '../assets/lrc.svg';
+import facebook from '../assets/facebook.svg';
+import email from '../assets/email.svg';
+import whatsapp from '../assets/whatsapp.svg';
+import twitter from '../assets/twitter.svg';
 
 const Icons = {
     play: play,
@@ -30,6 +35,11 @@ const Icons = {
     right: right,
     skip: skip,
     lrc: lrc,
+    back: back,
+    facebook: facebook,
+    email: email,
+    whatsapp: whatsapp,
+    twitter: twitter
 };
 
 export default Icons;

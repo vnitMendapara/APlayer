@@ -26,6 +26,7 @@ class Events {
             'timeupdate',
             'volumechange',
             'waiting',
+            'details'
         ];
         this.playerEvents = ['destroy', 'listshow', 'listhide', 'listadd', 'listremove', 'listswitch', 'listclear', 'noticeshow', 'noticehide', 'lrcshow', 'lrchide'];
     }

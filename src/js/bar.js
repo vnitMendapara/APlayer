@@ -4,6 +4,8 @@ class Bar {
         this.elements.volume = template.volume;
         this.elements.played = template.played;
         this.elements.loaded = template.loaded;
+        this.elements.playedMobile = template.playedMobile;
+        this.elements.loadedMobile = template.loadedMobile;
     }
 
     /**
@@ -19,6 +21,12 @@ class Bar {
         this.elements[type].style[direction] = percentage * 100 + '%';
     }
 
+    setIndex(type, percentage, direction,index) {
+        percentage = Math.max(percentage, 0);
+        percentage = Math.min(percentage, 1);
+        this.elements[type][index].style[direction] = percentage * 100 + '%';
+    }
+    
     get(type, direction) {
         return parseFloat(this.elements[type].style[direction]) / 100;
     }

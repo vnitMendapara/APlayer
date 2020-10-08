@@ -1,4 +1,5 @@
 const isMobile = /mobile/i.test(window.navigator.userAgent);
+const isMobileDevice = isMobile && window.innerWidth <= 600
 
 const utils = {
     /**
@@ -16,6 +17,7 @@ const utils = {
     },
 
     isMobile: isMobile,
+    isMobileDevice,
 
     storage: {
         set: (key, value) => {
